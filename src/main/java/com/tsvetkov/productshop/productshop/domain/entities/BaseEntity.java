@@ -18,7 +18,7 @@ public abstract class BaseEntity {
     private String id;
 
 
-    public BaseEntity() {
+    protected BaseEntity() {
     }
 
 

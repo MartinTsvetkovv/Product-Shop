@@ -51,5 +51,10 @@ public class CategoryServiceImpl implements CategoryService {
         return this.modelMapper.map(savedCategory, CategoryServiceModel.class);
     }
 
+    @Override
+    public void deleteCategory(String id) {
+         this.categoryRepository.deleteById(id);
+    }
+
 
 }

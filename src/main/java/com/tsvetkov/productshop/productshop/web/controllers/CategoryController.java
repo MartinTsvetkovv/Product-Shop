@@ -42,9 +42,10 @@ public class CategoryController extends BaseController {
 
         return super.view("add-category");
     }
+
     @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView allCategories(ModelAndView modelAndView){
+    public ModelAndView allCategories(ModelAndView modelAndView) {
         List<CategoriesAllViewModel> allCategories = this.categoryService.findAllCategories().stream()
                 .map(c -> this.modelMapper.map(c, CategoriesAllViewModel.class))
                 .collect(Collectors.toList());
@@ -56,7 +57,7 @@ public class CategoryController extends BaseController {
 
     @GetMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editUser(@PathVariable String id, ModelAndView modelAndView){
+    public ModelAndView editUser(@PathVariable String id, ModelAndView modelAndView) {
         CategoryServiceModel categoryById = this.categoryService.findCategoryById(id);
         CategoryViewModel categoryViewModel = this.modelMapper.map(categoryById, CategoryViewModel.class);
 
@@ -65,14 +66,42 @@ public class CategoryController extends BaseController {
         return super.view("edit-category", modelAndView);
 
     }
+
     @PutMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editConfirmed(@PathVariable String id, @ModelAttribute CategoryEditBindingModel model){
+    public ModelAndView editConfirmed(@PathVariable String id, @ModelAttribute CategoryEditBindingModel model) {
 
         this.categoryService.editCategory(id, this.modelMapper.map(model, CategoryServiceModel.class));
 
         return super.redirect("/categories/all");
 
+    }
+
+    @GetMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ModelAndView deleteById(@PathVariable String id, ModelAndView modelAndView) {
+        CategoryServiceModel categoryById = this.categoryService.findCategoryById(id);
+        CategoryViewModel viewModel = this.modelMapper.map(categoryById, CategoryViewModel.class);
+        modelAndView.addObject("model", viewModel);
+
+        return super.view("delete-category", modelAndView);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ModelAndView deleteCategory(@PathVariable String id) {
+        this.categoryService.deleteCategory(id);
+
+        return super.redirect("/categories/all");
+    }
+
+    @GetMapping("/fetch")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    @ResponseBody
+    public List<CategoryViewModel> fetchCategories(){
+        return this.categoryService.findAllCategories().stream()
+                .map(c -> this.modelMapper.map(c, CategoryViewModel.class))
+                .collect(Collectors.toList());
     }
 
 
