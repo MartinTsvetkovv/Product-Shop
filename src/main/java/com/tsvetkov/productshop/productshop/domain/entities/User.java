@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User  extends BaseEntity implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "username", unique = true, nullable = false, updatable = false)
     private String username;
@@ -21,7 +21,7 @@ public class User  extends BaseEntity implements UserDetails {
 
     @ManyToMany(targetEntity = Role.class, fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
-                joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> authorities;
 

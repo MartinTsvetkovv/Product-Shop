@@ -1,6 +1,7 @@
 package com.tsvetkov.productshop.productshop.web.controllers;
 
 import com.tsvetkov.productshop.productshop.domain.models.binding.ProductBindingModel;
+import com.tsvetkov.productshop.productshop.domain.models.service.CategoryServiceModel;
 import com.tsvetkov.productshop.productshop.domain.models.service.ProductServiceModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.ProductAllViewModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.ProductDetailsViewModels;
@@ -81,5 +82,63 @@ public class ProductController extends BaseController {
         return super.view("product-details", modelAndView);
 
     }
+    @GetMapping("/edit/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ModelAndView editProduct(@PathVariable String id, ModelAndView modelAndView){
+        ProductServiceModel productServiceModel = this.productService.findProductById(id);
+        ProductBindingModel productBindingModel = this.modelMapper.map(productServiceModel, ProductBindingModel.class);
+
+        productBindingModel.setCategories(productServiceModel.getCategories().stream().map(CategoryServiceModel::getName).collect(Collectors.toList()));
+        modelAndView.addObject("product", productBindingModel);
+        return super.view("edit-product", modelAndView);
+    }
+
+    @PutMapping("/edit/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ModelAndView editProductConfirm(@PathVariable String id, ProductBindingModel model, ModelAndView modelAndView){
+        this.productService.editProduct(id, this.modelMapper.map(model, ProductServiceModel.class));
+
+        return super.redirect("/products/all");
+    }
+
+    @GetMapping("/fetch/{category}")
+    @ResponseBody
+    public List<ProductAllViewModel> fetchProductByCategory(@PathVariable String category){
+        if (category.equals("all")){
+            return this.productService.findAllProducts()
+                    .stream()
+                    .map(p -> this.modelMapper.map(p, ProductAllViewModel.class))
+                    .collect(Collectors.toList());
+        }
+
+        return this.productService.findByCategory(category)
+                .stream()
+                .map(p -> this.modelMapper.map(p, ProductAllViewModel.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ModelAndView deleteProduct(@PathVariable String id, ModelAndView modelAndView){
+        ProductServiceModel productServiceModel = this.productService.findProductById(id);
+        ProductBindingModel model = this.modelMapper.map(productServiceModel, ProductBindingModel.class);
+
+        model.setCategories(productServiceModel.getCategories()
+                .stream()
+                .map(CategoryServiceModel::getName)
+                .collect(Collectors.toList()));
+
+        modelAndView.addObject("model", model);
+        return super.view("delete-product", modelAndView);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ModelAndView deleteProduct(@PathVariable String id){
+        this.productService.deleteProduct(id);
+
+        return super.redirect("/products/all");
+    }
+
 
 }

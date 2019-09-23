@@ -28,6 +28,11 @@
                 <h4 th:text="|Price: ${product.price}$|">Price: 5,50</h4>
             </div>
         </div>
+        <div class="row">
+            <div class="col col-md-12 text-center mt-5">
+                <a th:href="@{/order/product/{id}(id=${product.id})}" class="btn btn-success text-center">Order product</a>
+            </div>
+        </div>
     </div>
 </main>
 
