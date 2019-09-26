@@ -45,7 +45,7 @@ public class OrderController extends BaseController {
 
     @PostMapping("/submit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView orderConfirm(@PathVariable String id , Principal principal) {
+    public ModelAndView orderConfirm(@PathVariable String id , Principal principal) throws Exception {
         String name = principal.getName();
         this.orderService.createOrder(id, name);
         return super.redirect("/home");
