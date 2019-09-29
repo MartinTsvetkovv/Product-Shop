@@ -3,6 +3,7 @@ package com.tsvetkov.productshop.productshop.web.controllers;
 import com.tsvetkov.productshop.productshop.domain.models.service.ProductServiceModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.OrderViewModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.ProductDetailsViewModels;
+import com.tsvetkov.productshop.productshop.errors.ProductNotFoundException;
 import com.tsvetkov.productshop.productshop.services.OrderService;
 import com.tsvetkov.productshop.productshop.services.ProductService;
 import org.apache.catalina.LifecycleState;
@@ -34,7 +35,7 @@ public class OrderController extends BaseController {
 
     @GetMapping("/product/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView productOrder(@PathVariable String id, ModelAndView modelAndView) {
+    public ModelAndView productOrder(@PathVariable String id, ModelAndView modelAndView) throws ProductNotFoundException {
         ProductServiceModel productServiceModel = this.productService.findProductById(id);
         ProductDetailsViewModels productView = this.modelMapper.map(productServiceModel, ProductDetailsViewModels.class);
 

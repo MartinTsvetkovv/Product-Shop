@@ -3,6 +3,7 @@ package com.tsvetkov.productshop.productshop.services;
 import com.tsvetkov.productshop.productshop.domain.entities.Category;
 import com.tsvetkov.productshop.productshop.domain.entities.Product;
 import com.tsvetkov.productshop.productshop.domain.models.service.ProductServiceModel;
+import com.tsvetkov.productshop.productshop.errors.ProductNotFoundException;
 import com.tsvetkov.productshop.productshop.repository.ProductRepository;
 import com.tsvetkov.productshop.productshop.validations.ProductValidation;
 import org.modelmapper.ModelMapper;
@@ -34,8 +35,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductServiceModel addProduct(ProductServiceModel productServiceModel) {
-        if (!this.productValidation.isValid(productServiceModel)){
-                throw new IllegalArgumentException();
+        if (!this.productValidation.isValid(productServiceModel)) {
+            throw new IllegalArgumentException();
         }
         Product product = this.modelMapper.map(productServiceModel, Product.class);
         Product savedProduct = this.productRepository.save(product);
@@ -51,28 +52,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductServiceModel findProductById(String id) {
-        Product product = this.productRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public ProductServiceModel findProductById(String id) throws ProductNotFoundException {
+        Product product = this.productRepository
+                .findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product with the given id was not found"));
 
         return this.modelMapper.map(product, ProductServiceModel.class);
     }
 
     @Override
-    public ProductServiceModel editProduct(String id, ProductServiceModel model) {
-        Product product = this.productRepository.findById(id).orElseThrow(IllegalAccessError::new);
+    public ProductServiceModel editProduct(String id, ProductServiceModel productServiceModel) throws ProductNotFoundException {
+        Product product = this.productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product with the given id was not found"));
 
-        model.setCategories(this.categoryService.findAllCategories()
-                .stream()
-                .filter(c -> model.getCategories().contains(c.getId()))
+
+        product.setName(productServiceModel.getName());
+        product.setDescription(productServiceModel.getDescription());
+        product.setPrice(productServiceModel.getPrice());
+
+        product.setCategories(productServiceModel.getCategories().stream()
+                .map(c -> this.modelMapper.map(c, Category.class))
                 .collect(Collectors.toList()));
-
-
-        product.setName(model.getName());
-        product.setDescription(model.getDescription());
-        product.setPrice(model.getPrice());
-
-        product.setCategories(model.getCategories().stream()
-                .map(c -> this.modelMapper.map(c, Category.class)).collect(Collectors.toList()));
 
         Product savedProduct = this.productRepository.saveAndFlush(product);
 
@@ -80,7 +80,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Set<ProductServiceModel> findByCategory(String category) {
+    public List<ProductServiceModel> findByCategory(String category) {
 
 //                   return this.productRepository.findByCategory(category)
 //                   .stream().map(p -> this.modelMapper.map(p, ProductServiceModel.class))
@@ -92,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
                         .stream()
                         .anyMatch(c -> c.getName().equals(category)))
                 .map(p -> this.modelMapper.map(p, ProductServiceModel.class))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
     }
 

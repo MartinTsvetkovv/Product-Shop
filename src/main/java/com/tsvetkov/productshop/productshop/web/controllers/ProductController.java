@@ -5,6 +5,7 @@ import com.tsvetkov.productshop.productshop.domain.models.service.CategoryServic
 import com.tsvetkov.productshop.productshop.domain.models.service.ProductServiceModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.ProductAllViewModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.ProductDetailsViewModels;
+import com.tsvetkov.productshop.productshop.errors.ProductNotFoundException;
 import com.tsvetkov.productshop.productshop.services.CategoryService;
 import com.tsvetkov.productshop.productshop.services.CloudinaryService;
 import com.tsvetkov.productshop.productshop.services.ProductService;
@@ -71,9 +72,10 @@ public class ProductController extends BaseController {
 
         return super.view("all-products", modelAndView);
     }
+
     @GetMapping("/details/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView productDetails(@PathVariable String id, ModelAndView modelAndView){
+    public ModelAndView productDetails(@PathVariable String id, ModelAndView modelAndView) throws ProductNotFoundException {
         ProductServiceModel productServiceModel = this.productService.findProductById(id);
         ProductDetailsViewModels productDetails = this.modelMapper.map(productServiceModel, ProductDetailsViewModels.class);
 
@@ -82,29 +84,42 @@ public class ProductController extends BaseController {
         return super.view("product-details", modelAndView);
 
     }
+
     @GetMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editProduct(@PathVariable String id, ModelAndView modelAndView){
+    public ModelAndView editProduct(@PathVariable String id, ModelAndView modelAndView) throws ProductNotFoundException {
         ProductServiceModel productServiceModel = this.productService.findProductById(id);
         ProductBindingModel productBindingModel = this.modelMapper.map(productServiceModel, ProductBindingModel.class);
 
-        productBindingModel.setCategories(productServiceModel.getCategories().stream().map(CategoryServiceModel::getName).collect(Collectors.toList()));
+        productBindingModel.setCategories(productServiceModel.getCategories()
+                .stream()
+                .map(CategoryServiceModel::getName).collect(Collectors.toList()));
         modelAndView.addObject("product", productBindingModel);
         return super.view("edit-product", modelAndView);
     }
 
     @PutMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editProductConfirm(@PathVariable String id, ProductBindingModel model, ModelAndView modelAndView){
-        this.productService.editProduct(id, this.modelMapper.map(model, ProductServiceModel.class));
+    public ModelAndView editProductConfirm(@PathVariable String id, @ModelAttribute ProductBindingModel model) throws ProductNotFoundException {
+        //this.productService.editProduct(id, this.modelMapper.map(model, ProductServiceModel.class));
+        ProductServiceModel productServiceModel = this.modelMapper.map(model, ProductServiceModel.class);
+
+        productServiceModel.setCategories(this.categoryService
+                .findAllCategories()
+                .stream()
+                .filter(c -> model.getCategories().contains(c.getId()))
+                .collect(Collectors.toList()));
+
+
+        this.productService.editProduct(id, productServiceModel);
 
         return super.redirect("/products/all");
     }
 
     @GetMapping("/fetch/{category}")
     @ResponseBody
-    public List<ProductAllViewModel> fetchProductByCategory(@PathVariable String category){
-        if (category.equals("all")){
+    public List<ProductAllViewModel> fetchProductByCategory(@PathVariable String category) {
+        if (category.equals("all")) {
             return this.productService.findAllProducts()
                     .stream()
                     .map(p -> this.modelMapper.map(p, ProductAllViewModel.class))
@@ -119,8 +134,13 @@ public class ProductController extends BaseController {
 
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView deleteProduct(@PathVariable String id, ModelAndView modelAndView){
-        ProductServiceModel productServiceModel = this.productService.findProductById(id);
+    public ModelAndView deleteProduct(@PathVariable String id, ModelAndView modelAndView) {
+        ProductServiceModel productServiceModel = null;
+        try {
+            productServiceModel = this.productService.findProductById(id);
+        } catch (ProductNotFoundException e) {
+            e.getMessage();
+        }
         ProductBindingModel model = this.modelMapper.map(productServiceModel, ProductBindingModel.class);
 
         model.setCategories(productServiceModel.getCategories()
@@ -134,11 +154,19 @@ public class ProductController extends BaseController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView deleteProduct(@PathVariable String id){
+    public ModelAndView deleteProduct(@PathVariable String id) {
         this.productService.deleteProduct(id);
 
         return super.redirect("/products/all");
     }
+
+//    @ExceptionHandler(ProductNotFoundException.class)
+//    public ModelAndView handleProductException(ProductNotFoundException e) {
+//        ModelAndView modelAndView = new ModelAndView("error");
+//        modelAndView.addObject("message", e.getMessage());
+//        modelAndView.addObject("statusCode", e.getStatusCode());
+//        return modelAndView;
+//    }
 
 
 }
