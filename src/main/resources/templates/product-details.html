@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">>
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <th:block th:include="~{fragments/head}"></th:block>
 </head>
@@ -15,22 +15,32 @@
         </div>
         <div class="row">
             <div class="col col-md-12 text-center mt-5">
-                <h1 th:text="|Name: ${product.name}|">Name: Aspirin</h1>
+                <h1 th:text="|Name: ${product.name}|"></h1>
             </div>
         </div>
         <div class="row">
             <div class="col col-md-12 text-center mt-3">
-                <h4 th:text="|Descriprion: ${product.description}|">Desciption: Aspirinche</h4>
+                <h4 th:text="|Descriprion: ${product.description}|"></h4>
             </div>
         </div>
         <div class="row">
             <div class="col col-md-12 text-center">
-                <h4 th:text="|Price: ${product.price}$|">Price: 5,50</h4>
+                <h4 th:text="|Price: ${product.price}$|"></h4>
             </div>
         </div>
         <div class="row">
-            <div class="col col-md-12 text-center mt-5">
-                <a th:href="@{/order/product/{id}(id=${product.id})}" class="btn btn-success text-center">Order product</a>
+            <!--            <div class="col col-md-12 text-center mt-5">-->
+            <!--                <a th:href="@{/order/product/{id}(id=${product.id})}" class="btn btn-success text-center">Order product</a>-->
+            <!--            </div>-->
+            <div class="col col-md-12 text-center mt-3 ">
+                <form class="form w-25 mx-auto" th:action="@{/cart/add-product}" th:method="post">
+                    <div class="form-group">
+                        <label for="quantity" class="font-weight-bold">Quantity:</label>
+                        <input type="number" class="form-control" id="quantity" min="1" max="15" step="1" name="quantity">
+                    </div>
+                    <input type="hidden" name="id" th:value="${product.id}">
+                    <button type="submit" class="btn btn-success">Order product</button>
+                </form>
             </div>
         </div>
     </div>

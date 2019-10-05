@@ -5,6 +5,7 @@ import com.tsvetkov.productshop.productshop.domain.models.binding.CategoryEditBi
 import com.tsvetkov.productshop.productshop.domain.models.service.CategoryServiceModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.CategoriesAllViewModel;
 import com.tsvetkov.productshop.productshop.domain.models.view.CategoryViewModel;
+import com.tsvetkov.productshop.productshop.errors.CategoryNotFoundException;
 import com.tsvetkov.productshop.productshop.services.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class CategoryController extends BaseController {
 
     @GetMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editUser(@PathVariable String id, ModelAndView modelAndView) {
+    public ModelAndView editUser(@PathVariable String id, ModelAndView modelAndView) throws CategoryNotFoundException {
         CategoryServiceModel categoryById = this.categoryService.findCategoryById(id);
         CategoryViewModel categoryViewModel = this.modelMapper.map(categoryById, CategoryViewModel.class);
 
@@ -69,7 +70,7 @@ public class CategoryController extends BaseController {
 
     @PutMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editConfirmed(@PathVariable String id, @ModelAttribute CategoryEditBindingModel model) {
+    public ModelAndView editConfirmed(@PathVariable String id, @ModelAttribute CategoryEditBindingModel model) throws CategoryNotFoundException {
 
         this.categoryService.editCategory(id, this.modelMapper.map(model, CategoryServiceModel.class));
 
@@ -79,7 +80,7 @@ public class CategoryController extends BaseController {
 
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView deleteById(@PathVariable String id, ModelAndView modelAndView) {
+    public ModelAndView deleteById(@PathVariable String id, ModelAndView modelAndView) throws CategoryNotFoundException {
         CategoryServiceModel categoryById = this.categoryService.findCategoryById(id);
         CategoryViewModel viewModel = this.modelMapper.map(categoryById, CategoryViewModel.class);
         modelAndView.addObject("model", viewModel);
@@ -103,6 +104,12 @@ public class CategoryController extends BaseController {
                 .map(c -> this.modelMapper.map(c, CategoryViewModel.class))
                 .collect(Collectors.toList());
     }
-
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ModelAndView handleProductException(CategoryNotFoundException e) {
+        ModelAndView modelAndView = new ModelAndView("error");
+        modelAndView.addObject("message", e.getMessage());
+        modelAndView.addObject("statusCode", e.getStatusCode());
+        return modelAndView;
+    }
 
 }

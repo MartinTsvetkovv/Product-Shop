@@ -39,18 +39,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void createOrder(String productId, String name) throws Exception {
-        UserServiceModel userByName = this.userService.findUserByName(name);
-        if (!this.userValidation.isValid(userByName)){
-            throw new IllegalArgumentException();
-        }
-        Product product = this.productRepository.findById(productId)
-                .filter(this.productValidation::isValid).orElseThrow(Exception::new);
-
-        Order order = new Order();
-        order.setUser(this.modelMapper.map(userByName, User.class));
-        order.setProduct(product);
-
-        this.orderRepository.save(order);
+//        UserServiceModel userByName = this.userService.findUserByName(name);
+//        if (!this.userValidation.isValid(userByName)){
+//            throw new IllegalArgumentException();
+//        }
+//        Product product = this.productRepository.findById(productId)
+//                .filter(this.productValidation::isValid).orElseThrow(Exception::new);
+//
+//        Order order = new Order();
+//        order.setUser(this.modelMapper.map(userByName, User.class));
+//        order.setProduct(product);
+//
+//        this.orderRepository.save(order);
     }
 
     @Override

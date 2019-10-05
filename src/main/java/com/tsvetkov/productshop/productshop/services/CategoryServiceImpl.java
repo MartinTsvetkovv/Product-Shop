@@ -2,6 +2,7 @@ package com.tsvetkov.productshop.productshop.services;
 
 import com.tsvetkov.productshop.productshop.domain.entities.Category;
 import com.tsvetkov.productshop.productshop.domain.models.service.CategoryServiceModel;
+import com.tsvetkov.productshop.productshop.errors.CategoryNotFoundException;
 import com.tsvetkov.productshop.productshop.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +36,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryServiceModel findCategoryById(String id) {
-        Category category = this.categoryRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public CategoryServiceModel findCategoryById(String id) throws CategoryNotFoundException {
+        Category category = this.categoryRepository.findById(id).orElseThrow(() -> new CategoryNotFoundException("Category with the given id was not found!"));
 
         return this.modelMapper.map(category, CategoryServiceModel.class);
     }
 
     @Override
-    public CategoryServiceModel editCategory(String id, CategoryServiceModel categoryServiceModel) {
-        Category category = this.categoryRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public CategoryServiceModel editCategory(String id, CategoryServiceModel categoryServiceModel) throws CategoryNotFoundException {
+        Category category = this.categoryRepository
+                .findById(id)
+                .orElseThrow(() -> new CategoryNotFoundException("Category with the given id was not found!"));
 
         category.setName(categoryServiceModel.getName());
 

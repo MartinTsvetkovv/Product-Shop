@@ -86,6 +86,7 @@ public class ProductServiceImpl implements ProductService {
 //                   .stream().map(p -> this.modelMapper.map(p, ProductServiceModel.class))
 //                   .collect(Collectors.toSet());
 
+
         return this.productRepository.findAll()
                 .stream()
                 .filter(product -> product.getCategories()

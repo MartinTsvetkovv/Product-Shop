@@ -160,13 +160,13 @@ public class ProductController extends BaseController {
         return super.redirect("/products/all");
     }
 
-//    @ExceptionHandler(ProductNotFoundException.class)
-//    public ModelAndView handleProductException(ProductNotFoundException e) {
-//        ModelAndView modelAndView = new ModelAndView("error");
-//        modelAndView.addObject("message", e.getMessage());
-//        modelAndView.addObject("statusCode", e.getStatusCode());
-//        return modelAndView;
-//    }
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ModelAndView handleProductException(ProductNotFoundException e) {
+        ModelAndView modelAndView = new ModelAndView("error");
+        modelAndView.addObject("message", e.getMessage());
+        modelAndView.addObject("statusCode", e.getStatusCode());
+        return modelAndView;
+    }
 
 
 }

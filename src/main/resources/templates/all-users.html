@@ -25,9 +25,9 @@
 
         <th:block th:each="user, iter : ${users} ">
             <tr class="row mx-auto">
-                <th class="col-md-2 text-center" th:text="${iter.index + 1}">1</th>
-                <td class="col-md-3 text-center" th:text="${user.username}">spaska</td>
-                <td class="col-md-2 text-center" th:text="${user.email}">spaska@abv.bg</td>
+                <th class="col-md-2 text-center" th:text="${iter.index + 1}"></th>
+                <td class="col-md-3 text-center" th:text="${user.username}"></td>
+                <td class="col-md-2 text-center" th:text="${user.email}"></td>
                 <td class="col-md-2 text-center" th:text="${#strings.listJoin(user.authorities, ', ')}">USER</td>
                 <td class="col-md-3 text-center">
 

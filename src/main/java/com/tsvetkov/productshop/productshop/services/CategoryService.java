@@ -1,6 +1,7 @@
 package com.tsvetkov.productshop.productshop.services;
 
 import com.tsvetkov.productshop.productshop.domain.models.service.CategoryServiceModel;
+import com.tsvetkov.productshop.productshop.errors.CategoryNotFoundException;
 
 import java.util.List;
 
@@ -10,9 +11,9 @@ public interface CategoryService {
 
     List<CategoryServiceModel> findAllCategories();
 
-    CategoryServiceModel findCategoryById(String id);
+    CategoryServiceModel findCategoryById(String id) throws CategoryNotFoundException;
 
-    CategoryServiceModel editCategory(String id, CategoryServiceModel categoryServiceModel);
+    CategoryServiceModel editCategory(String id, CategoryServiceModel categoryServiceModel) throws CategoryNotFoundException;
 
     void deleteCategory(String id);
 
