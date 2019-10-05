@@ -63,9 +63,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderServiceModel> findCustomerByName(String name) {
-        return this.orderRepository.findAllByUser_Username(name)
-                .stream()
-                .map(o -> this.modelMapper.map(o, OrderServiceModel.class))
-                .collect(Collectors.toList());
+//        return this.orderRepository.findAllByUser_Username(name)
+//                .stream()
+//                .map(o -> this.modelMapper.map(o, OrderServiceModel.class))
+//                .collect(Collectors.toList());
+        return null;
     }
 }

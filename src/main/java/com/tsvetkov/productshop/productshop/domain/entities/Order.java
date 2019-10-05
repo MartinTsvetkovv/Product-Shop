@@ -9,14 +9,6 @@ import java.util.List;
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
-    private List<Product> products;
-    private User customer;
-    private BigDecimal totalPrice;
-    private LocalDate finishedOn;
-
-    public Order() {
-    }
-
     @ManyToMany(targetEntity = Product.class)
     @JoinTable(
             name = "orders_products",
@@ -29,6 +21,15 @@ public class Order extends BaseEntity {
                     referencedColumnName = "id"
             )
     )
+    private List<Product> products;
+    private User customer;
+    private BigDecimal totalPrice;
+    private LocalDate finishedOn;
+
+    public Order() {
+    }
+
+
     public List<Product> getProducts() {
         return products;
     }
