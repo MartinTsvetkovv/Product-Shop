@@ -1,17 +1,15 @@
 package com.tsvetkov.productshop.productshop.services;
 
 import com.tsvetkov.productshop.productshop.domain.entities.Order;
-import com.tsvetkov.productshop.productshop.domain.entities.Product;
-import com.tsvetkov.productshop.productshop.domain.entities.User;
 import com.tsvetkov.productshop.productshop.domain.models.service.OrderServiceModel;
-import com.tsvetkov.productshop.productshop.domain.models.service.UserServiceModel;
 import com.tsvetkov.productshop.productshop.repository.OrderRepository;
 import com.tsvetkov.productshop.productshop.repository.ProductRepository;
-import com.tsvetkov.productshop.productshop.validations.ProductValidation;
-import com.tsvetkov.productshop.productshop.validations.UserValidation;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,24 +19,26 @@ public class OrderServiceImpl implements OrderService {
     private final ModelMapper modelMapper;
     private final UserService userService;
     private final ProductRepository productRepository;
-    private final ProductValidation productValidation;
-    private final UserValidation userValidation;
 
+    @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
                             ModelMapper modelMapper,
                             UserService userService,
-                            ProductRepository productRepository, ProductValidation productValidation, UserValidation userValidation) {
+                            ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.modelMapper = modelMapper;
         this.userService = userService;
         this.productRepository = productRepository;
-        this.productValidation = productValidation;
-        this.userValidation = userValidation;
     }
 
 
     @Override
-    public void createOrder(String productId, String name) throws Exception {
+    @Transactional
+    public void createOrder(OrderServiceModel orderServiceModel) {
+        orderServiceModel.setFinishedOn(LocalDateTime.now());
+        Order orderToSave = this.modelMapper.map(orderServiceModel, Order.class);
+        this.orderRepository.saveAndFlush(orderToSave);
+
 //        UserServiceModel userByName = this.userService.findUserByName(name);
 //        if (!this.userValidation.isValid(userByName)){
 //            throw new IllegalArgumentException();
@@ -62,11 +62,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderServiceModel> findCustomerByName(String name) {
-//        return this.orderRepository.findAllByUser_Username(name)
-//                .stream()
-//                .map(o -> this.modelMapper.map(o, OrderServiceModel.class))
-//                .collect(Collectors.toList());
-        return null;
+    public List<OrderServiceModel> findOrderByCustomerName(String name) {
+        return this.orderRepository.findAllOrdersByCustomer_UsernameOrderByFinishedOn(name)
+                .stream()
+                .map(o -> this.modelMapper.map(o, OrderServiceModel.class))
+                .collect(Collectors.toList());
+
     }
+
+    @Override
+    public OrderServiceModel findOrderById(String id) {
+
+        return this.orderRepository.findById(id)
+                .map(o -> this.modelMapper.map(o, OrderServiceModel.class))
+                .orElseThrow(() -> new IllegalArgumentException("Nqma Go"));
+    }
+
 }

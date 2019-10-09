@@ -1,17 +1,14 @@
 package com.tsvetkov.productshop.productshop.domain.models.service;
 
-import com.tsvetkov.productshop.productshop.domain.entities.Product;
-import com.tsvetkov.productshop.productshop.domain.entities.User;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderServiceModel extends BaseServiceModel {
     private List<ProductServiceModel> products;
     private UserServiceModel customer;
     private BigDecimal totalPrice;
-    private LocalDate finishedOn;
+    private LocalDateTime finishedOn;
 
     public OrderServiceModel() {
     }
@@ -40,15 +37,15 @@ public class OrderServiceModel extends BaseServiceModel {
         this.totalPrice = totalPrice;
     }
 
-    public LocalDate getFinishedOn() {
+    public LocalDateTime getFinishedOn() {
         return finishedOn;
     }
 
-    public void setFinishedOn(LocalDate finishedOn) {
+    public void setFinishedOn(LocalDateTime finishedOn) {
         this.finishedOn = finishedOn;
     }
 
-//    @Override
+    //    @Override
 //    public void configureMappings(ModelMapper mapper) {
 //        mapper.createTypeMap(Order.class, OrderServiceModel.class)
 //                .addMapping(entity -> entity.getProduct().getName(),

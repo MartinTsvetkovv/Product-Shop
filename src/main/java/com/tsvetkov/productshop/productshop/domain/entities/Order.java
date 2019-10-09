@@ -3,13 +3,14 @@ package com.tsvetkov.productshop.productshop.domain.entities;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
-    @ManyToMany(targetEntity = Product.class)
+    @ManyToMany(targetEntity = OrderProduct.class, cascade = CascadeType.ALL)
     @JoinTable(
             name = "orders_products",
             joinColumns = @JoinColumn(
@@ -21,27 +22,28 @@ public class Order extends BaseEntity {
                     referencedColumnName = "id"
             )
     )
-    private List<Product> products;
-    private User customer;
-    private BigDecimal totalPrice;
-    private LocalDate finishedOn;
-
-    public Order() {
-    }
-
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
+    private List<OrderProduct> products;
     @ManyToOne(targetEntity = User.class)
     @JoinColumn(
             name = "user_id",
             referencedColumnName = "id"
     )
+    private User customer;
+    private BigDecimal totalPrice;
+    private LocalDateTime finishedOn;
+
+    public Order() {
+    }
+
+
+    public List<OrderProduct> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<OrderProduct> products) {
+        this.products = products;
+    }
+
     public User getCustomer() {
         return customer;
     }
@@ -58,11 +60,11 @@ public class Order extends BaseEntity {
         this.totalPrice = totalPrice;
     }
     @Column(name = "finished_on")
-    public LocalDate getFinishedOn() {
+    public LocalDateTime getFinishedOn() {
         return finishedOn;
     }
 
-    public void setFinishedOn(LocalDate finishedOn) {
+    public void setFinishedOn(LocalDateTime finishedOn) {
         this.finishedOn = finishedOn;
     }
 }

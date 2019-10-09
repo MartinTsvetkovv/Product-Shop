@@ -5,6 +5,7 @@ import com.tsvetkov.productshop.productshop.domain.models.service.ProductService
 import com.tsvetkov.productshop.productshop.domain.models.view.ProductDetailsViewModels;
 import com.tsvetkov.productshop.productshop.domain.models.view.ShoppingCart;
 import com.tsvetkov.productshop.productshop.errors.ProductNotFoundException;
+import com.tsvetkov.productshop.productshop.services.OrderService;
 import com.tsvetkov.productshop.productshop.services.ProductService;
 import com.tsvetkov.productshop.productshop.services.UserService;
 import org.modelmapper.ModelMapper;
@@ -29,12 +30,14 @@ import java.util.List;
 public class CartController extends BaseController {
     private final ProductService productService;
     private final UserService userService;
+    private final OrderService orderService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public CartController(ProductService productService, UserService userService, ModelMapper modelMapper) {
+    public CartController(ProductService productService, UserService userService, OrderService orderService, ModelMapper modelMapper) {
         this.productService = productService;
         this.userService = userService;
+        this.orderService = orderService;
         this.modelMapper = modelMapper;
     }
 
@@ -80,27 +83,28 @@ public class CartController extends BaseController {
 
     @PostMapping("/checkout")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView checkoutConfirm(HttpSession session, Principal principal) {
+    public ModelAndView checkoutConfirm(HttpSession session, Principal principal) throws Exception {
         List<ShoppingCart> shoppingCartItems = this.retrieveCart(session);
 
         OrderServiceModel orderServiceModel = this.prepareOrder(shoppingCartItems, principal.getName());
-
+        this.orderService.createOrder(orderServiceModel);
         return redirect("/home");
     }
 
     private OrderServiceModel prepareOrder(List<ShoppingCart> shoppingCartItems, String name) {
         OrderServiceModel orderServiceModel = new OrderServiceModel();
         orderServiceModel.setCustomer(this.userService.findUserByName(name));
-
+        List<ProductServiceModel> products = new ArrayList<>();
 
         for (ShoppingCart shoppingCartItem : shoppingCartItems) {
             ProductServiceModel productServiceModel = this.modelMapper.map(shoppingCartItem, ProductServiceModel.class);
-            List<ProductServiceModel> products = new ArrayList<>();
+
             for (int i = 0; i < shoppingCartItem.getQuantity(); i++) {
                 products.add(productServiceModel);
             }
-            orderServiceModel.setProducts(products);
+
         }
+        orderServiceModel.setProducts(products);
         orderServiceModel.setTotalPrice(this.calculateTotalPrice(shoppingCartItems));
 
         return orderServiceModel;

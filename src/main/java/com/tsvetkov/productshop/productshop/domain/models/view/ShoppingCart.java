@@ -3,6 +3,7 @@ package com.tsvetkov.productshop.productshop.domain.models.view;
 import java.io.Serializable;
 
 public class ShoppingCart implements Serializable {
+
     private ProductDetailsViewModels product;
     private int quantity;
 
